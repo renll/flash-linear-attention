@@ -401,7 +401,7 @@ class SwiGLUFunction(torch.autograd.Function):
     @staticmethod
     def forward(ctx, x, y):
         ctx.save_for_backward(x, y)
-        if torch.compiler.is_compiling() or isinstance(x, torch.distributed.tensor.DTensor):
+        if torch.compiler.is_compiling():
             return swiglu_fwd_torch(x, y)
         else:
             return swiglu_fwd(x, y)
@@ -409,7 +409,7 @@ class SwiGLUFunction(torch.autograd.Function):
     @staticmethod
     def backward(ctx, dout):
         x, y = ctx.saved_tensors
-        if torch.compiler.is_compiling() or isinstance(x, torch.distributed.tensor.DTensor):
+        if torch.compiler.is_compiling():
             return swiglu_bwd_torch(x, y, dout)
         else:
             return swiglu_bwd(x, y, dout)
@@ -429,7 +429,7 @@ class SwiGLULinearFunction(torch.autograd.Function):
     @autocast_custom_fwd
     def forward(ctx, x, y, weight, bias):
         with torch.no_grad():
-            if torch.compiler.is_compiling() or isinstance(x, torch.distributed.tensor.DTensor):
+            if torch.compiler.is_compiling():
                 z = swiglu_fwd_torch(x, y)
             else:
                 z = swiglu_fwd(x, y)
@@ -446,7 +446,7 @@ class SwiGLULinearFunction(torch.autograd.Function):
         dout = dout.reshape(-1, dout.shape[-1])
         dz = F.linear(dout, weight.t()).view_as(x)
         with torch.no_grad():
-            if torch.compiler.is_compiling() or isinstance(x, torch.distributed.tensor.DTensor):
+            if torch.compiler.is_compiling():
                 dx, dy, z = swiglu_fwdbwd_torch(x, y, dz)
             else:
                 dx, dy, z = swiglu_fwdbwd(x, y, dz)
