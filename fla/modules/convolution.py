@@ -617,6 +617,7 @@ class ShortConvolution(nn.Conv1d):
         s += f', backend={self.backend}'
         return s.format(**self.__dict__)
 
+    @torch.compiler.disable
     def forward(
         self,
         x: torch.Tensor,
