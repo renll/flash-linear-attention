@@ -1032,7 +1032,8 @@ class FusedRMSNormGated(nn.Module):
         s += f", activation={self.activation}"
         s += ")"
         return s
-
+    
+    @torch.compiler.disable
     def forward(
         self,
         x: torch.Tensor,
